@@ -1,0 +1,94 @@
+import { ComboBox, Button, VerticalBox, CheckBox, GroupBox } from "std-widgets.slint";
+import { TextEdit } from "std-widgets.slint";
+import { AboutSlint, Palette, Slider, HorizontalBox } from "std-widgets.slint";
+import { LineEdit, StandardButton, ScrollView, TabWidget, ListView } from "std-widgets.slint";
+import { CanData, CanMessage, CanSignal } from "messages.slint";
+import { viewPage } from "view_page.slint";
+import { filterPage } from "filter_page.slint";
+import { selectPage } from "page_selection.slint";
+
+export component AppWindow inherits Window {
+    in property <bool> is_filter: false;
+    in property <bool> is_new_dbc: false;
+    in property <bool> is_first_open: true;
+    in property <[CanData]> messages;
+    in property <[CanData]> filter_messages;
+
+    in-out property <int> active-page: 0;
+
+    callback open_dbc_file();
+    callback filter_id(CanData, bool);
+    title: @tr("CAN VIEWER (version 0.1.0)");
+    icon: @image-url("images/can_viewer_128px.png");
+    background: #1a1f2b;
+    default-font-family: "Noto Sans";
+    default-font-size: 12px;
+    preferred-height: 600px;
+    preferred-width: 800px;
+
+    VerticalLayout {
+        HorizontalLayout {
+            view_selection := selectPage {
+                min-height: 25px;
+                text: "view";
+                is_selected: true;
+                selected => {
+                    filter-selection.is_selected = false;
+                    debug-selection.is_selected = false;
+                    chart-selection.is_selected = false;
+                    active-page = 0;
+                }
+            }
+            filter_selection := selectPage {
+                text: "filter";
+                is_selected: false;
+                selected => {
+                    view-selection.is_selected = false;
+                    debug-selection.is_selected = false;
+                    chart-selection.is_selected = false;
+                    active-page = 1;
+                }
+            }
+            debug_selection := selectPage {
+                text: "debug";
+                is_selected: false;
+                selected => {
+                    filter-selection.is_selected = false;
+                    view-selection.is_selected = false;
+                    chart-selection.is_selected = false;
+                    active-page = 2;
+                }
+            }
+            chart_selection := selectPage {
+                text: "chart";
+                is_selected: false;
+                selected => {
+                    filter-selection.is_selected = false;
+                    debug-selection.is_selected = false;
+                    view-selection.is_selected = false;
+                    active-page = 3;
+                }
+            }
+        }
+        Rectangle {
+            filterPage {
+                is_visible: root.active-page == 1;
+                page-num: 1;
+                messages: root.messages;
+                filter_id(can_data, checked) => {
+                    filter_id(can_data, checked);
+                }
+            }
+            if root.active-page == 0:
+            viewPage {
+                page-num: 0;
+                is_filter: root.is_filter;
+                messages: root.messages;
+                filter_messages: root.filter_messages;
+                open_dbc_file() => {
+                    open_dbc_file()
+                }
+            }
+        }
+    }
+}
